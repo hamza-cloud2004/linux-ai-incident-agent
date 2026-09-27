@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  flask-app:
+    build: .
+    container_name: sre-agent
+    ports:
+      - "5001:5000"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2:1b
+      - OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-ap-south-1.grafana.net/otlp
+      - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic MTg0NTE2ODpnbGNfZXlKdklqb2lNVGt5TkRrNU5TSXNJbTRpT2lKemRHRmpheTB4T0RRMU1UWTRMVzkwWld3dGMzSmxMV0ZuWlc1MElpd2lheUk2SWpOcU4xYzNhMnhzT1ZoYVRFY3lNbE0xTVhkNGFFUTROU0lzSW0waU9uc2ljaUk2SW5CeWIyUXRZWEF0YzI5MWRHZ3RNU0o5ZlE9PQ==
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
